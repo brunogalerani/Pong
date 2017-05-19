@@ -16,8 +16,7 @@ function love.load()
   }
 
   ball = {
-      x = player1.width,
-      --x = 600,
+      x = player1.width + 1,
       y = player1.y - 7.5 + player1.height / 2,
       height = 15,
       width = 15,
@@ -28,7 +27,7 @@ function love.load()
 end
 
 function love.update(dt)
-
+  ball.speed = ball.speed + 0.016
   player1_move()
   player2_move()
   ball_movement()
@@ -51,13 +50,13 @@ end
 function player1_move()
 
   if love.keyboard.isDown('w') then
-    if colision_top(player1) == false then
+    if not colision_top(player1) then
       player1.y = player1.y - 10
     end
   end
 
   if love.keyboard.isDown('s') then
-    if colision_bottom(player1) == false then
+    if not colision_bottom(player1) then
       player1.y = player1.y + 10
     end
   end
@@ -107,35 +106,23 @@ function ball_movement()
 end
 
 function colision_top(obj)
-  if obj.y <= 0 then
-    return true
-  end
-  return false
+  return obj.y <= 0
 end
 
 function colision_bottom(obj)
-  if obj.y + obj.height >= love.graphics.getHeight() then
-    return true
-  end
-  return false
+  return obj.y + obj.height >= love.graphics.getHeight()
 end
 
 function colision_left(obj)
-  if obj.x == 0 then
-    return true
-  end
-  return false
+  return obj.x <= 0
 end
 
 function colision_right(obj)
-  if obj.x + obj.width == love.graphics.getWidth() then
-    return true
-  end
-  return false
+  return obj.x + obj.width >= love.graphics.getWidth()
 end
 
 function colision_ball_vertical(obj)
-  if colision_top(obj) == true then
+  if colision_top(obj) then
     obj.y_direction = 'd'
   elseif colision_bottom(obj) == true then
     obj.y_direction = 'u'
@@ -143,25 +130,31 @@ function colision_ball_vertical(obj)
 end
 
 function colision_ball_horizontal(obj)
-  if colision_right(obj) == true then
-    obj.x_direction = ''
-    obj.y_direction = ''
-    obj.x = player1.width
-    obj.y = player1.y - 7.5 + player1.height / 2
+  if colision_right(ball) then
+    ball.x_direction = ''
+    ball.y_direction = ''
+    ball.x = player1.width + 1
+    ball.y = player1.y - 7.5 + player1.height / 2
 
-  elseif colision_left(obj) == true then
-    obj.x_direction = ''
-    obj.y_direction = ''
-    obj.x = player2.x - obj.width
-    obj.y = player2.y - 7.5 + player2.height / 2
+  elseif colision_left(ball) then
+    ball.x_direction = ''
+    ball.y_direction = ''
+    ball.x = player2.x - ball.width - 1
+    ball.y = player2.y - 7.5 + player2.height / 2
   end
 end
 
 function player_ball_colision(obj)
   if ball.x + ball.width >= player2.x and
-    ball.y - ball.height > player2.y and
+    ball.y + ball.height >= player2.y and
       ball.y < player2.y + player2.height then
         ball.x_direction = 'l'
+  end
+
+  if ball.x <= player1.x + player1.width and
+    ball.y + ball.height >= player1.y and
+      ball.y < player1.y + player1.height then
+        ball.x_direction = 'r'
   end
 end
 
@@ -171,13 +164,15 @@ function start_game()
       if ball.x == player1.width + 1 then
         ball.x_direction = 'r'
         ball.y_direction = 'u'
+        ball.speed = 5
       end
     end
 
     if ball.x_direction == '' or ball.y_direction == '' then
-      if ball.x == player2.x - ball.width - 1 then
+      if ball.x == player2.x - ball.width -1 then
         ball.x_direction = 'l'
         ball.y_direction = 'u'
+        ball.speed = 5
       end
     end
   end
@@ -185,11 +180,10 @@ end
 
 function ball_at_player_movement()
   if ball.x_direction == '' and ball.y_direction == '' then
-    if ball.x == player1.width then
+    if ball.x == player1.width +1 then
       ball.y = player1.y - 7.5 + player1.height / 2
-    elseif ball.x == player2.x - ball.width then
+    elseif ball.x + ball.width == player2.x -1 then
       ball.y = player2.y - 7.5 + player2.height / 2
     end
   end
-
 end
