@@ -24,15 +24,26 @@ function love.load()
       x_direction = '',
       y_direction = ''
   }
+
+  game_over_text = ""
+  max_points = 1
+  max_speed = 15
+  is_ended = false
+
+  player_sound = love.audio.newSource("player.ogg")
+  screen_sound = love.audio.newSource("screen.ogg")
+  score_sound = love.audio.newSource("score.ogg")
+  love.graphics.setFont(love.graphics.newFont(80))
 end
 
 function love.update(dt)
-  ball.speed = ball.speed + 0.016
+  speed_increase()
   player1_move()
   player2_move()
   ball_movement()
   start_game()
   player_ball_colision()
+
 
 end
 
@@ -45,6 +56,19 @@ function love.draw()
 
   love.graphics.rectangle('fill', ball.x,
   ball.y, ball.width, ball.height)
+
+  love.graphics.rectangle('fill', love.graphics.getWidth()/2 + 1.5, 0, 3,
+  love.graphics.getHeight())
+  love.graphics.print(player1.score, love.graphics.getWidth() * 0.25 - 40, 20)
+  love.graphics.print(player2.score, love.graphics.getWidth() * 0.75 - 20, 20)
+  love.graphics.printf(game_over_text, 0, love.graphics.getHeight() * 0.25, love.graphics.getWidth(), 'center')
+
+end
+
+function speed_increase()
+  if ball.speed <= max_speed then
+    ball.speed = ball.speed + 0.016
+  end
 end
 
 function player1_move()
@@ -124,19 +148,32 @@ end
 function colision_ball_vertical(obj)
   if colision_top(obj) then
     obj.y_direction = 'd'
+    screen_sound:play()
   elseif colision_bottom(obj) == true then
     obj.y_direction = 'u'
+    screen_sound:play()
+  end
+end
+
+function count_points (player)
+  player.score = player.score  + 1
+  if player.score >= max_points then
+    game_over_text = "Fim de Jogo. \nPressione o ENTER."
   end
 end
 
 function colision_ball_horizontal(obj)
   if colision_right(ball) then
+    score_sound:play()
+    count_points(player1)
     ball.x_direction = ''
     ball.y_direction = ''
     ball.x = player1.width + 1
     ball.y = player1.y - 7.5 + player1.height / 2
 
   elseif colision_left(ball) then
+    count_points(player2)
+    score_sound:play()
     ball.x_direction = ''
     ball.y_direction = ''
     ball.x = player2.x - ball.width - 1
@@ -149,12 +186,14 @@ function player_ball_colision(obj)
     ball.y + ball.height >= player2.y and
       ball.y < player2.y + player2.height then
         ball.x_direction = 'l'
+        player_sound:play()
   end
 
   if ball.x <= player1.x + player1.width and
     ball.y + ball.height >= player1.y and
       ball.y < player1.y + player1.height then
         ball.x_direction = 'r'
+        player_sound:play()
   end
 end
 
