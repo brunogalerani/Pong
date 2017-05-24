@@ -37,17 +37,14 @@ function love.load()
 end
 
 function love.update(dt)
+  control_keys()
   speed_increase()
-  player1_move()
-  player2_move()
   ball_movement()
-  start_game()
   player_ball_colision()
-
-
 end
 
 function love.draw()
+
   love.graphics.rectangle('fill', player1.x,
   player1.y, player1.width, player1.height)
 
@@ -158,7 +155,29 @@ end
 function count_points (player)
   player.score = player.score  + 1
   if player.score >= max_points then
-    game_over_text = "Fim de Jogo. \nPressione o ENTER."
+    game_over_text = "Fim de Jogo \nPressione o ENTER"
+    is_ended = true
+  end
+end
+
+function restart_game()
+  if love.keyboard.isDown("return") then
+    player1.score = 0
+    player2.score = 0
+    game_over_text = ""
+    is_ended = false
+    player1.y = love.graphics.getHeight()/2 - 75
+    player2.y = love.graphics.getHeight()/2 - 75
+  end
+end
+
+function control_keys()
+  if not is_ended then
+    player1_move()
+    player2_move()
+    start_game()
+  else
+    restart_game()
   end
 end
 
