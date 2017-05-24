@@ -21,6 +21,18 @@ function love.load()
       height = 15,
       width = 15,
       speed = 5,
+      angle = 60,
+      x_direction = '',
+      y_direction = ''
+  }
+
+  ball2 = {
+      x = player1.width + 1,
+      y = player1.y - 7.5 + player1.height / 2,
+      height = 15,
+      width = 15,
+      speed = 5,
+      angle = 60,
       x_direction = '',
       y_direction = ''
   }
@@ -29,6 +41,7 @@ function love.load()
   max_points = 1
   max_speed = 15
   is_ended = false
+  temp = true
 
   player_sound = love.audio.newSource("player.ogg")
   screen_sound = love.audio.newSource("screen.ogg")
@@ -41,6 +54,7 @@ function love.update(dt)
   speed_increase()
   ball_movement()
   player_ball_colision()
+  calculate()
 end
 
 function love.draw()
@@ -53,6 +67,9 @@ function love.draw()
 
   love.graphics.rectangle('fill', ball.x,
   ball.y, ball.width, ball.height)
+
+  love.graphics.rectangle('fill', ball2.x,
+  ball2.y, ball2.width, ball2.height)
 
   love.graphics.rectangle('fill', love.graphics.getWidth()/2 + 1.5, 0, 3,
   love.graphics.getHeight())
@@ -99,6 +116,15 @@ function player2_move()
   end
 
   ball_at_player_movement()
+end
+
+function calculate()
+  if temp then
+    x = ball.y / math.cos(math.rad(45))
+    ball2.x = x
+    ball2.y = 0
+    temp = false
+  end
 end
 
 function ball_movement()
