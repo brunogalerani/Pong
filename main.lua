@@ -1,4 +1,6 @@
 function love.load()
+  math.randomseed(os.time())
+
   player1 = {
     x = 0,
     y = love.graphics.getHeight()/2 - 75,
@@ -88,19 +90,49 @@ function player1_move()
 end
 
 function player2_move()
-  if love.keyboard.isDown('up') then
+        
+  if player2_wants_to_move_up() then
     if colision_top(player2) == false then
       player2.y = player2.y - 10
     end
   end
 
-  if love.keyboard.isDown('down') then
+  if player2_wants_to_move_down() then
     if colision_bottom(player2) == false then
       player2.y = player2.y + 10
     end
   end
 
   ball_at_player_movement()
+end
+
+bot_waiting = false
+frames_remaining = 0
+
+function player2_wants_to_move_up()
+  -- Human player 2
+  -- return love.keyboard.isDown('up')
+  if not game_started then return false end
+    
+  if bot_waiting then
+    frames_remaining = frames_remaining - 1
+    if frames_remaining <= 0 then
+      bot_waiting = false
+    end
+    return false
+  elseif math.random(100) < 5 then
+    bot_waiting = true
+    frames_remaining = 20
+  end
+  return player2.y + player2.height / 2 > ball.y    
+end
+
+function player2_wants_to_move_down()
+  -- Human player 2
+  -- return love.keyboard.isDown('down')
+  if not game_started then return false end
+    
+  return math.random(100) < 70 and player2.y + player2.height / 2 < ball.y 
 end
 
 function ball_movement()
@@ -202,7 +234,7 @@ function player_ball_colision(obj)
 end
 
 function start_game()
-  if(love.keyboard.isDown(' ')) then
+  if(love.keyboard.isDown('o')) then
     if not game_started then
       if ball.x == player1.width + 1 then
       	game_started = true
